@@ -16,7 +16,7 @@
 #define SNDBUFSIZE 512
 #define RCVBUFSIZE 512
 
-#define DEBUG
+//#define DEBUG
 
 using std::cin;
 using std::cout;
@@ -74,7 +74,6 @@ int main(int argc, char *argv[]){
     }
 
     recv(client_socket, rcvBuf, RCVBUFSIZE, 0);
-    cout << "first received information: " << rcvBuf << endl;
     msg_flg = int(rcvBuf[0]);
 #ifdef DEBUG
     cout << "msg_flg: " << msg_flg << endl;
@@ -82,7 +81,7 @@ int main(int argc, char *argv[]){
     for(int cnt = 0; cnt < msg_flg; cnt++){
         buffer += rcvBuf[1 + cnt];
     }
-    if(buffer != "server-overloaded"){
+    if(buffer != "Server-overloaded!"){
         cout << "Connect successfully to server!" << endl;
     }else{
         cout << "There is no enough client slots available! The maximum supported concurrent clients number is 3" << endl;
@@ -120,13 +119,9 @@ int main(int argc, char *argv[]){
             for(int cnt = 0; cnt < msg_flg; cnt++){
                 buffer += rcvBuf[1 + cnt];
             }
-            if(buffer == "You Win!" || buffer == "You Lose!"){
+            if(buffer == "Game Over!"){
                 cout << buffer <<endl;
-                cout << "Game Over!" << endl;
-                memset(&sndBuf, 0, SNDBUFSIZE);
-                strcpy(sndBuf, "_");
-                sndBuf[0] = 3 & 0xFF;
-                send(client_socket, sndBuf, sizeof(sndBuf), 0);
+                cout << "Disconnected from server!" << endl;
                 close(client_socket);
                 return 0;
             }else if(buffer == "Waiting for other player!"){
@@ -138,6 +133,10 @@ int main(int argc, char *argv[]){
             }else if(buffer == "Correct!"){
                 cout << buffer << endl;
             }else if(buffer == "Incorrect!"){
+                cout << buffer << endl;
+            }else if(buffer == "You Win!"){
+                cout << buffer << endl;
+            }else if(buffer == "You Lose!"){
                 cout << buffer << endl;
             }else{
                 cout << buffer << endl;
@@ -173,9 +172,12 @@ int main(int argc, char *argv[]){
                 cout << incrt_guess[i] << " ";
             }
             cout << endl;
+            if(guess_word.find('_') == guess_word.npos || incrt_guess.length() == 6){
+                continue;
+            }
             while(1){
                 s_in = "";
-                cout << "Letter to guess: " << endl;
+                cout << "Letter to guess: ";
                 cin >> s_in;
                 if(s_in.length() != 1){
                     cout << "Error! Please guess one letter." << endl;
@@ -193,6 +195,7 @@ int main(int argc, char *argv[]){
                     sndBuf[0] = 1 & 0xFF;
                     sndBuf[1] = guess_char;
                     send(client_socket, sndBuf, sizeof(sndBuf), 0);
+                    cout << endl;
                     break;
                 }else{
                     cout << "Error! Please guess one letter." << endl;
