@@ -17,7 +17,7 @@
 #define SNDBUFSIZE 512
 #define MIN(a,b) a < b ? a : b
 
-#define DEBUG
+//#define DEBUG
 
 using std::cout;
 using std::endl;
@@ -151,8 +151,8 @@ int main(int argc, char *argv[]){
             /* Check if current client number exceeds 3 */
             if(client_count >= 3){
                 memset(&sndBuf, 0, SNDBUFSIZE);
-                strcpy(sndBuf, "_server-overloaded");
-                sndBuf[0] = 17 & 0xFF;
+                strcpy(sndBuf, "_Server-overloaded!");
+                sndBuf[0] = 18 & 0xFF;
                 send(new_socket, sndBuf, sizeof(sndBuf), 0);
             }else{
                 //inform user of socket number - used in send and receive commands
@@ -180,11 +180,28 @@ int main(int argc, char *argv[]){
             sd = client_socket[i];
             // check is client_socket[i] sent msg
             if(FD_ISSET(sd, &fd_list)){
+#ifdef DEBUG
                 cout << "sd: " << sd << endl;
+#endif
                 memset(&rcvBuf, 0, RCVBUFSIZE);
                 recv(sd, rcvBuf, RCVBUFSIZE, 0);
                 msg_length = (int)rcvBuf[0];
                 if(msg_length == 0){                   //start game (single player mode), initialization
+                    if(waiting_flg && client_count == 3){
+                        memset(&sndBuf, 0, SNDBUFSIZE);
+                        strcpy(sndBuf, "_Server-overloaded! But you can still choose two-player mode!");
+                        sndBuf[0] = 60 & 0xFF;
+                        send(sd, sndBuf, sizeof(sndBuf), 0);
+                        memset(&sndBuf, 0, SNDBUFSIZE);
+                        strcpy(sndBuf, "_Game Over!");
+                        sndBuf[0] = 10 & 0xFF;
+                        send(sd, sndBuf, sizeof(sndBuf), 0);
+
+                        client_count--;
+                        client_socket[i] = 0;
+                        close(sd);
+                        cout << "client socket closed!" << endl;
+                    }
                     srand((unsigned)time(NULL));
                     word_index = rand() % 15;
                     word[i] = dict[word_index];
@@ -209,38 +226,51 @@ int main(int argc, char *argv[]){
                         waiting_flg = true;
                         waiting_socket = i;
                         player_one[i] = true;
+
                         memset(&sndBuf, 0, SNDBUFSIZE);
                         strcpy(sndBuf, "_Waiting for other player!");
                         sndBuf[0] = 25 & 0xFF;
                         send(sd, sndBuf, sizeof(sndBuf), 0);
                     }else{
-                        waiting_flg = false;
                         part[i] = waiting_socket;
                         part[waiting_socket] = i;
+
                         memset(&sndBuf, 0, SNDBUFSIZE);
                         strcpy(sndBuf, "_Game Starting!");
                         sndBuf[0] = 14 & 0xFF;
                         send(client_socket[waiting_socket], sndBuf, sizeof(sndBuf), 0);
                         send(client_socket[i], sndBuf, sizeof(sndBuf), 0);
+
+                        memset(&sndBuf, 0, SNDBUFSIZE);
+                        strcpy(sndBuf, "_Waiting on Player 1...");
+                        sndBuf[0] = 22 & 0xFF;
+                        send(client_socket[i], sndBuf, sizeof(sndBuf), 0);
+
                         memset(&sndBuf, 0, SNDBUFSIZE);
                         strcpy(sndBuf, "_Your Turn!");
                         sndBuf[0] = 10 & 0xFF;
                         send(client_socket[waiting_socket], sndBuf, sizeof(sndBuf), 0);
 
+
                         int mini = MIN(waiting_socket, i);
                         srand((unsigned)time(NULL));
                         word_index = rand() % 15;
                         word[mini] = dict[word_index];
-                        memset(&sndBuf, 0, SNDBUFSIZE);
+
                         for(int idx = 0; idx < word[mini].length(); idx++){
                             guess_word[mini] += base;
                         }
                         buffer[mini] = "___" + guess_word[mini] + incrt_guess[mini];
+
+                        memset(&sndBuf, 0, SNDBUFSIZE);
                         strcpy(sndBuf, buffer[mini].c_str());
                         sndBuf[0] = 0 & 0xFF;
                         sndBuf[1] = int(guess_word[mini].length()) & 0xFF;
                         sndBuf[2] = int(incrt_guess[mini].length()) & 0xFF;
                         send(client_socket[waiting_socket], sndBuf, sizeof(sndBuf), 0);
+
+                        waiting_flg = false;
+                        waiting_socket = -1;
                     }
                 }else if(msg_length == 3){              // end game
                     cout << "client socket closed!" << endl;
@@ -280,20 +310,55 @@ int main(int argc, char *argv[]){
                         }
                     }
                     memset(&sndBuf, 0, SNDBUFSIZE);
-                    if(incrt_guess[mini].length() == 6){
-                        strcpy(sndBuf, "_You Lose!");
-                        sndBuf[0] = 9 & 0xFF;
+                    if(incrt_guess[mini].length() == 6 || correct_count[mini] == word[mini].length()){      // Win or lose, game over!
+                        buffer[mini] = "___" + guess_word[mini] + incrt_guess[mini];
+
+                        strcpy(sndBuf, buffer[mini].c_str());
+                        sndBuf[0] = 0 & 0xFF;
+                        sndBuf[1] = int(guess_word[mini].length()) & 0xFF;
+                        sndBuf[2] = int(incrt_guess[mini].length()) & 0xFF;
+                        send(sd, sndBuf, sizeof(sndBuf), 0);
+
+                        memset(&sndBuf, 0, SNDBUFSIZE);
+                        if(incrt_guess[mini].length() == 6){
+                            strcpy(sndBuf, "_You Lose!");
+                            sndBuf[0] = 9 & 0xFF;
+                            send(sd, sndBuf, sizeof(sndBuf), 0);
+                            if(part[i] != -1){
+                                send(client_socket[part[i]], sndBuf, sizeof(sndBuf), 0);
+                            }
+                        }else{
+                            strcpy(sndBuf, "_You Win!");
+                            sndBuf[0] = 8 & 0xFF;
+                            send(sd, sndBuf, sizeof(sndBuf), 0);
+                            if(part[i] != -1){
+                                send(client_socket[part[i]], sndBuf, sizeof(sndBuf), 0);
+                            }
+                        }
+                        memset(&sndBuf, 0, SNDBUFSIZE);
+                        strcpy(sndBuf, "_Game Over!");
+                        sndBuf[0] = 10 & 0xFF;
                         send(sd, sndBuf, sizeof(sndBuf), 0);
                         if(part[i] != -1){
                             send(client_socket[part[i]], sndBuf, sizeof(sndBuf), 0);
                         }
-                    } else if(correct_count[mini] == word[mini].length()){
-                        strcpy(sndBuf, "_You Win!");
-                        sndBuf[0] = 8 & 0xFF;
-                        send(sd, sndBuf, sizeof(sndBuf), 0);
+                        cout << "client socket closed!" << endl;
+                        incrt_guess[mini] = "";
+                        guess_word[mini] = "";
+                        buffer[mini] = "";
+                        word[mini] = "";
+                        correct_count[mini] = 0;
+                        close(sd);
                         if(part[i] != -1){
-                            send(client_socket[part[i]], sndBuf, sizeof(sndBuf), 0);
+                            close(client_socket[part[i]]);
+                            client_socket[part[i]] = 0;
+                            player_one[part[i]] = false;
+                            part[part[i]] = -1;
                         }
+                        client_socket[i] = 0;
+                        client_count--;
+                        player_one[i] = false;
+                        part[i] = -1;
                     } else{
                         if(part[i] != -1){
                             if(guess_status){
@@ -307,11 +372,11 @@ int main(int argc, char *argv[]){
                             }
                             memset(&sndBuf, 0, SNDBUFSIZE);
                             if(player_one[i]){
-                                strcpy(sndBuf, "_Waiting on Player 2");
+                                strcpy(sndBuf, "_Waiting on Player 2...");
                             }else {
-                                strcpy(sndBuf, "_Waiting on Player 1");
+                                strcpy(sndBuf, "_Waiting on Player 1...");
                             }
-                            sndBuf[0] = 19 & 0xFF;
+                            sndBuf[0] = 22 & 0xFF;
                             send(sd ,sndBuf, sizeof(sndBuf), 0);
                             memset(&sndBuf, 0, SNDBUFSIZE);
                             strcpy(sndBuf, "_Your Turn!");
@@ -333,7 +398,9 @@ int main(int argc, char *argv[]){
                 }
             }
         }
+#ifdef DEBUG
         cout << "ITER!!" << endl;
+#endif
     }
     close(server_socket);
     return 0;
