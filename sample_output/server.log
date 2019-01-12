@@ -1,0 +1,12 @@
+Script started on Sun 11 Nov 2018 11:02:32 PM EST
+[?1034hbash-4.1$ ./server 5000
+New connection, socket fd is 4, ip is : 143.215.26.228, port : 57917
+client socket closed!
+New connection, socket fd is 4, ip is : 143.215.26.228, port : 57922
+New connection, socket fd is 5, ip is : 143.215.26.228, port : 57924
+client socket closed!
+^C
+bash-4.1$ exit
+exit
+
+Script done on Sun 11 Nov 2018 11:07:43 PM EST

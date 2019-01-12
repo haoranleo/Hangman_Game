@@ -1,0 +1,49 @@
+Script started on Sun Nov 11 23:04:55 2018
+[?1034hbash-3.2$ ./client 130.207.114.26 5000
+Connect successfully to server!
+Two Player? (y/n)
+y
+Waiting for other player!
+Game Starting!
+Your Turn!
+_ _ _ _ _ _ 
+Incorrect Guesses: 
+Letter to guess: e
+
+Correct!
+Waiting on Player 2...
+Your Turn!
+_ _ _ e _ _ 
+Incorrect Guesses: s 
+Letter to guess: i
+
+Correct!
+Waiting on Player 2...
+Your Turn!
+_ _ i e _ _ 
+Incorrect Guesses: s p 
+Letter to guess: a
+
+Incorrect!
+Waiting on Player 2...
+Your Turn!
+f _ i e _ _ 
+Incorrect Guesses: s p a 
+Letter to guess: r
+
+Correct!
+Waiting on Player 2...
+Your Turn!
+f r i e n _ 
+Incorrect Guesses: s p a 
+Letter to guess: d
+
+f r i e n d 
+Incorrect Guesses: s p a 
+You Win!
+Game Over!
+Disconnected from server!
+bash-3.2$ exit
+exit
+
+Script done on Sun Nov 11 23:07:19 2018
