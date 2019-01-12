@@ -1,7 +1,13 @@
 Description
 -------------
 
-This program is a server-client "Hangman" game for both single and two players. The maximum connection of client is set to be three (i.e. at most three games, both single and two player mode, are allowed). Every player are allowed only 6 times incorrect guess. 
+This project aims to develop a "Hangman" game for both single and multiple players. Players establishes connection with game-server through TCP socket. Players can find their partners online.
+
+The game-server is designed to be able to manage maximum three 2-players games simultaneously by monitoring multiple socket descriptors.
+
+Every player (if multiple player mode, then all players) are allowed only 6 times incorrect guesses per game. 
+
+See project description here: [Project Description](./Project2_description.pdf)
 
 Compile
 ------------
@@ -13,7 +19,6 @@ To compile server, simply run
 To compile client, simply run
 
 		g++ client.cpp -std=c++0x -o client
-
 
 
 There is also a Makefile available, simply put it under the same path with server.cpp and client.cpp, both server and client would be compiled by running
