@@ -5,7 +5,7 @@ This project aims to develop a "Hangman" game for both single and multiple playe
 
 The game-server is designed to be able to manage maximum three 2-players games simultaneously by monitoring multiple socket descriptors.
 
-Every player (if multiple player mode, then all players) are allowed only 6 times incorrect guesses per game. 
+Every player (if multiple player mode, then all players) are allowed only 6 incorrect guesses per game. 
 
 See project description here: [Project Description](./Project2_description.pdf)
 
