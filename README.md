@@ -3,18 +3,6 @@ Description
 
 This program is a server-client "Hangman" game for both single and two players. The maximum connection of client is set to be three (i.e. at most three games, both single and two player mode, are allowed). Every player are allowed only 6 times incorrect guess. 
 
-Description
--------------
-
-Team member: Haoran Li, Yingqiao Zheng
-GT user name: hli656, yzheng394
-GT ID number: 903377792, 903422795
-
-Haoran Li is responsible for server.cpp and the original message format design and implementation;
-
-Yingqiao Zheng is responsible for client.cpp, program test and modification to the newest requirement.
-
-
 Compile
 ------------
 
