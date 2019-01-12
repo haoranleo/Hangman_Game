@@ -1,8 +1,3 @@
-<<<<<<< HEAD
-Created: November 3, 2018
-Last Modified: November 11, 2018
-
-
 Description
 -------------
 
@@ -48,7 +43,3 @@ Run client using
 
 		./client <server_IP_address> <portnumber>
 
-=======
-# Hangman_Game
-2
->>>>>>> ad1d715e296a2ebc1d76ba91fd7cd88559b3cdad
