@@ -1,7 +1,7 @@
 Description
 -------------
 
-This program is a server-client "Hangman" game for both single and multiple players. Players establishes connection with game-server through TCP socket. Players can find their partners online.
+This project aims to develop a "Hangman" game for both single and multiple players. Players establishes connection with game-server through TCP socket. Players can find their partners online.
 
 The game-server is designed to be able to manage maximum three 2-players games simultaneously by monitoring multiple socket descriptors.
 
